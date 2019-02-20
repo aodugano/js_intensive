@@ -8,7 +8,8 @@ window.addEventListener('DOMContentLoaded', () => {
 		confirm = document.querySelector('.confirm'),
 		badge = document.querySelector('.nav__badge'),
 		totalCost = document.querySelector('.cart__total > span'),
-		titles = document.querySelectorAll('.goods__title');
+		titles = document.querySelectorAll('.goods__title'),
+		textEmpty = cartWrapper.textContent; //записываем текст cartWrapper "Ваша корзина пока пуста"
 
 	function openCart() {
 		cart.style.display = ('block');
@@ -30,20 +31,104 @@ window.addEventListener('DOMContentLoaded', () => {
 				empty = cartWrapper.querySelector('.empty');
 				trigger.remove();
 
+				calcGoods(1);
+				showConfirm();
+			
+				
 				removeBtn.classList.add('goods__item-remove');
 				removeBtn.innerHTML = '&times';
 				removeBtn.style.display = ('fixed');
 				item.appendChild(removeBtn);
 
-
 				cartWrapper.appendChild(item);
-				if (emty) {
-					empty.remove();
-				}
 				
+				 
+				if (empty) {
+					empty.remove();
+					console.log(empty.textContent);
+					
+				} 
+
+	
+				calcTotal();
+				removeFromCart();
+
 
 		});
-
+			
 	});
-}) 
+
+	function sliceTitle() {
+		titles.forEach(function(item) {
+			if (item.textContent.length < 70) {
+				return;
+			} else {
+				const str = item.textContent.slice(0, 71) + '...';
+				// const str = `${item.textContent.slice(0, 71)} ...`;
+				item.textContent = str;
+			}
+		});	
+};
+sliceTitle();
+
+	function showConfirm() {
+		confirm.style.display = 'block';
+		let counter = 100;
+		const id = setInterval(frame, 10)
+		function frame () {
+			if (counter == 10) {
+				clearInterval(id);
+				confirm.style.display = 'none';
+			} else {
+				counter--;
+				confirm.style.opacity = '.' + counter;
+				confirm.style.transform = `translateY(-${counter}px)`;	
+			}
+			
+		}
+
+	};
+	// setInterval(sliceTitle, 100)
+	// setTimeout(sliceTitle, 100);
+	function calcGoods(i) {
+		const items = cartWrapper.querySelectorAll('.goods__item');
+		badge.textContent = i + items.length;
+
+		if (items.length === 0) { 
+           
+            let empty = cartWrapper.querySelector('.empty'); //запись в локальную переменную элемента с классом .empty
+
+            if (!empty) {
+                empty = document.createElement('div'); //создание нового, взамен удаленного элемента
+                empty.textContent = textEmpty; //вставка текста
+                empty.classList.add('empty'); //присваивание класса
+                cartWrapper.appendChild(empty); //добавление в div с cartWrapper дочернего элемента
+            } //проверка на наличие empty в cartWrapper
+        } //проверка наличие покупок в корзине
+	}
+
+	function calcTotal() {
+		const prices = document.querySelectorAll('.cart__wrapper > .goods__item > .goods__price > span');
+		let total = 0;
+		prices.forEach(function(item) {
+		total += +item.textContent;
+
+		});
+		totalCost.textContent = total;
+	};
+
+	function removeFromCart () {
+		const removeBtn = cartWrapper.querySelectorAll('.goods__item-remove');
+		removeBtn.forEach(function(btn) {
+			btn.addEventListener('click', () => {
+				btn.parentElement.remove();
+				calcGoods(0);
+				calcTotal();
+
+			});
+		});
+	}
+	
+});
+
 	
